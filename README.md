@@ -1,4 +1,8 @@
-edrone_pilot
-============
+Edrone control program.
 
-Remote control of an AR Parrot 2.0 with a Logitech Extreme 3D Pro joystick.
+This application uses inpevt to read joystick inputs, which are then sent to the drone
+for processing.
+
+
+application:start(inpevt).
+application:start(edrone_pilot).
