@@ -46,6 +46,7 @@
 -define(PITCH_TRIM_CMD,     16#0005).
 -define(ROLL_TRIM_CMD,      16#0006).
 -define(YAW_TRIM_CMD,       16#0007).
+-define(UPGRADE_CMD,        16#0008).
 -define(MAX_CMD_VAL,        16#3FF).
 
 -record(st, { 
@@ -261,13 +262,19 @@ handle_info(#input_event { type = key, code_sym = top2, value = 1} ,
     {noreply, St#st { yaw_trim = NTrim }};
 
 
+handle_info(#input_event { type = key, code_sym = trigger, value = 1}, St) ->
+    io:format("UPGRADE TIME~n"),
+    send_joystick(upgrade, 0, St),
+    {noreply, St};
+
+
 
 handle_info(#input_event { type = syn }, St) ->
     {noreply, St};
 
 
 handle_info(_Info, St) ->
-    %% io:format("handle_info()??: ~p~n", [ Info ]),
+%%     io:format("handle_info()??: ~p~n", [ Info ]),
     {noreply, St}.
 
 %%--------------------------------------------------------------------
@@ -324,9 +331,6 @@ encode_cmd(throttle) -> ?THROTTLE_CMD;
 encode_cmd(pitch_trim) -> ?PITCH_TRIM_CMD;
 encode_cmd(roll_trim) -> ?ROLL_TRIM_CMD;
 encode_cmd(yaw_trim) -> ?YAW_TRIM_CMD;
+encode_cmd(upgrade) -> ?UPGRADE_CMD;
 encode_cmd
 (_)-> error.
-    
-
-			  
-    
