@@ -47,6 +47,7 @@
 -define(ROLL_TRIM_CMD,      16#0006).
 -define(YAW_TRIM_CMD,       16#0007).
 -define(UPGRADE_CMD,        16#0008).
+-define(ALT_LOCK_CMD,       16#0009).
 -define(MAX_CMD_VAL,        16#3FF).
 
 -record(st, { 
@@ -69,8 +70,8 @@
 	  yaw_min = ?YAW_MIN_DEFAULT, 
 	  yaw_max = ?YAW_MAX_DEFAULT, 
 
-	  throttle_min = ?YAW_MIN_DEFAULT, 
-	  throttle_max = ?YAW_MAX_DEFAULT, 
+	  throttle_min = ?THROTTLE_MIN_DEFAULT, 
+	  throttle_max = ?THROTTLE_MAX_DEFAULT, 
 
 	  drone_socket = undefined,
 	  drone_address = { undefined, undefined }
@@ -182,7 +183,7 @@ handle_info(#input_event { type = abs, code_sym = y, value = Val },
 	    #st { pitch_min = Min, pitch_max = Max } = St) ->
 
     NormVal = calc_norm_val(Val, Min, Max),
-    io:format("pitch(~p)~n", [ NormVal]),
+     io:format("pitch(~p)~n", [ NormVal]),
     send_joystick(pitch, NormVal, St),
     {noreply, St#st { pitch = NormVal }};
 
@@ -263,6 +264,16 @@ handle_info(#input_event { type = key, code_sym = top2, value = 1} ,
 
 
 handle_info(#input_event { type = key, code_sym = trigger, value = 1}, St) ->
+    io:format("Altitude lock: Engaged~n"),
+    send_joystick(alt_lock, 1, St),
+    {noreply, St};
+
+handle_info(#input_event { type = key, code_sym = trigger, value = 0}, St) ->
+    io:format("Altitude lock: Disengaged~n"),
+    send_joystick(alt_lock, 0, St),
+    {noreply, St};
+
+handle_info(#input_event { type = key, code_sym = thumb, value = 1}, St) ->
     io:format("UPGRADE TIME~n"),
     send_joystick(upgrade, 0, St),
     {noreply, St};
@@ -307,8 +318,9 @@ code_change(_OldVsn, St, _Extra) ->
 
 get_env(Key, Default) ->
     case application:get_env(?MODULE, Key) of
-	undefined -> Default;
-	Val -> Val
+	undefined -> io:format("get_env(~p): Default: ~p~n", [Key,Default]), Default;
+	{ok, Val} -> io:format("get_env(~p): ~p~n", [Key, Val]), Val
+
     end.
 		      
 %% Calculate a 0-1023 normalized value based on input
@@ -332,5 +344,5 @@ encode_cmd(pitch_trim) -> ?PITCH_TRIM_CMD;
 encode_cmd(roll_trim) -> ?ROLL_TRIM_CMD;
 encode_cmd(yaw_trim) -> ?YAW_TRIM_CMD;
 encode_cmd(upgrade) -> ?UPGRADE_CMD;
-encode_cmd
-(_)-> error.
+encode_cmd(alt_lock) -> ?ALT_LOCK_CMD;
+encode_cmd(_)-> error.

@@ -2,7 +2,7 @@
  [{description, "Erlang Drone Pilot Application"},
   {vsn, "1.0"},
   {registered, []},
-  {env, []},
-  {mod, {edrone_pilot_app,["/dev/input/event17"]} },
+  {env, [ ]},
+  {mod, { edrone_pilot_app,[]} },
   {applications,[kernel,stdlib, inpevt]}
   ]}.

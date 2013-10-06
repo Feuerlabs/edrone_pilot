@@ -6,3 +6,4 @@ for processing.
 
 application:start(inpevt).
 application:start(edrone_pilot).
+
